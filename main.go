@@ -7,9 +7,12 @@ import (
 	"time"
 )
 
+const DEFAULT_POLLING_FREQUENCY = 1000000
+const DEFAULT_PAUSE_THRESHOLD = DEFAULT_POLLING_FREQUENCY
+
 func main() {
-	resolutionNs := flag.Uint64("resolution", 1000000, "Frequency in ns at which to test")
-	thresholdNs := flag.Uint64("threshold", 1000000, "Threshold in ns of pause to allow above resolution")
+	resolutionNs := flag.Int64("resolution", DEFAULT_POLLING_FREQUENCY, "Frequency in ns at which to test")
+	thresholdNs := flag.Int64("threshold", DEFAULT_PAUSE_THRESHOLD, "Threshold in ns of pause to allow")
 
 	flag.Parse()
 
