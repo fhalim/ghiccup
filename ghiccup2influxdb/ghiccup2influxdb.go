@@ -4,18 +4,12 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	ghiccup "github.com/fhalim/ghiccup/utils"
 	"net/http"
 	"os"
 	"strings"
 	"time"
 )
-
-type HiccupInfo struct {
-	Timestamp  string `json:"timestamp"`
-	Resolution uint64 `json:"resolution"`
-	Threshold  uint64 `json:"threshold"`
-	Duration   uint64 `json:"duration"`
-}
 
 type InfluxDbMetricValue struct {
 	Name    string        `json:"name"`
@@ -30,7 +24,7 @@ func main() {
 		line, _, err := bio.ReadLine()
 
 		hiccupInfo := readHiccupInfo(line)
-		influxDbPayload := createInfluxDbPayload([]HiccupInfo{hiccupInfo})
+		influxDbPayload := createInfluxDbPayload([]ghiccup.HiccupInfo{hiccupInfo})
 
 		fmt.Printf(influxDbPayload + "\n")
 		postData(influxDbPayload)
@@ -53,7 +47,7 @@ func postData(payload string) {
 	}
 }
 
-func createInfluxDbPayload(hiccupInfos []HiccupInfo) string {
+func createInfluxDbPayload(hiccupInfos []ghiccup.HiccupInfo) string {
 	hostname, _ := os.Hostname()
 	hiccupInfo := hiccupInfos[0]
 	timestamp, _ := time.Parse(time.RFC3339, hiccupInfo.Timestamp)
@@ -65,12 +59,12 @@ func createInfluxDbPayload(hiccupInfos []HiccupInfo) string {
 		Points:  []interface{}{[]interface{}{timestamp.UnixNano() / 1000000, hiccupDuration, hostname}},
 	}
 
-	influxDbLine := marshall([]InfluxDbMetricValue{metricValue})
+	influxDbLine := ghiccup.Marshall([]InfluxDbMetricValue{metricValue})
 	return influxDbLine
 }
 
-func readHiccupInfo(line []byte) HiccupInfo {
-	var hiccupInfo HiccupInfo
+func readHiccupInfo(line []byte) ghiccup.HiccupInfo {
+	var hiccupInfo ghiccup.HiccupInfo
 	err := json.Unmarshal(line, &hiccupInfo)
 
 	if err != nil {
@@ -78,11 +72,4 @@ func readHiccupInfo(line []byte) HiccupInfo {
 	}
 
 	return hiccupInfo
-}
-func marshall(value interface{}) string {
-	bytes, err := json.Marshal(value)
-	if err != nil {
-		panic(fmt.Sprintf("Error %v", err))
-	}
-	return string(bytes)
 }
