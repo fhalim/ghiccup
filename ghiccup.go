@@ -25,7 +25,7 @@ func execute(resolution time.Duration, threshold time.Duration) {
 		endTime := time.Now()
 		durationNs := endTime.Sub(startTime).Nanoseconds()
 		if durationNs > threshold.Nanoseconds() {
-			fmt.Printf("{timestamp: \"%v\", resolution: %d, threshold: %d, duration: %d}\n", time.Now().Format(time.RFC3339), resolution.Nanoseconds(), threshold.Nanoseconds(), durationNs)
+			fmt.Printf("{\"timestamp\": \"%v\", \"resolution\": %d, \"threshold\": %d, \"duration\": %d}\n", time.Now().Format(time.RFC3339), resolution.Nanoseconds(), threshold.Nanoseconds(), durationNs)
 		}
 	}
 }
