@@ -1,4 +1,4 @@
-package utils
+package ghiccup
 
 type HiccupInfo struct {
 	Timestamp  string `json:"timestamp"`

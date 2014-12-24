@@ -1,4 +1,4 @@
-package utils
+package ghiccup
 
 import (
 	"encoding/json"

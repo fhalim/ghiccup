@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	ghiccup "github.com/fhalim/ghiccup/utils"
+	"github.com/fhalim/ghiccup"
 	"log"
 	"net/http"
 	"os"

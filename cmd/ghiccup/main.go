@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	utils "github.com/fhalim/ghiccup/utils"
+	"github.com/fhalim/ghiccup"
 	"time"
 )
 
@@ -29,7 +29,7 @@ func execute(resolution time.Duration, threshold time.Duration) {
 		endTime := time.Now()
 		durationNs := endTime.Sub(startTime).Nanoseconds()
 		if durationNs > threshold.Nanoseconds() {
-			fmt.Println(utils.Marshall(utils.HiccupInfo{
+			fmt.Println(ghiccup.Marshall(ghiccup.HiccupInfo{
 				Timestamp:  time.Now().Format(time.RFC3339),
 				Resolution: resolution.Nanoseconds(),
 				Threshold:  threshold.Nanoseconds(),
