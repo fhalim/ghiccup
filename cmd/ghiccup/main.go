@@ -1,3 +1,6 @@
+/*
+Measures hiccups in the platform and reports those that exceed the specified threshold
+*/
 package main
 
 import (
