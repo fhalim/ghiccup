@@ -8,15 +8,13 @@ import (
 	"github.com/boltdb/bolt"
 )
 
-/* MessageBuffer is a buffer containing messages
- */
+// MessageBuffer provides a queue-like interface for locally buffered messages
 type MessageBuffer struct {
 	bucketName string
 	db         *bolt.DB
 }
 
-/* Create new BoltDB based buffer
- */
+// NewBuffer creates a new MessageBuffer object backed by a BoltDB database bucket
 func NewBuffer(fileName string) (*MessageBuffer, error) {
 	buf := new(MessageBuffer)
 	db, err := bolt.Open(fileName, 0600, nil)
@@ -35,24 +33,12 @@ func NewBuffer(fileName string) (*MessageBuffer, error) {
 	return buf, nil
 }
 
+// Close releases resources held by the buffer.
 func (buffer MessageBuffer) Close() error {
 	return buffer.db.Close()
 }
 
-func (buffer MessageBuffer) nextKey(b *bolt.Bucket) []byte {
-	buf := make([]byte, 3)
-	key, _ := b.NextSequence()
-	utf8.EncodeRune(buf, rune(key))
-	return buf
-}
-func serialize(obj interface{}) ([]byte, error) {
-	return json.Marshal(obj)
-}
-func deserialize(bytes []byte, objMaker func() interface{}) (interface{}, error) {
-	obj := objMaker()
-	err := json.Unmarshal(bytes, obj)
-	return obj, err
-}
+// Add pushes a message to the queue
 func (buffer MessageBuffer) Add(obj interface{}) error {
 	tx, err := buffer.db.Begin(true)
 	defer tx.Commit()
@@ -60,15 +46,19 @@ func (buffer MessageBuffer) Add(obj interface{}) error {
 	line, err := serialize(obj)
 	if err != nil {
 		return err
-	} else {
-		key := buffer.nextKey(b)
-		log.Println("Adding entry with key", key)
-		err := b.Put(key, line)
-		tx.Commit()
+	}
+	key := buffer.nextKey(b)
+	log.Println("Adding entry with key", key)
+	err = b.Put(key, line)
+	if err != nil {
 		return err
 	}
+	tx.Commit()
+	return err
+
 }
 
+// ForEach allows consumers to iterate over all messages currently in the queue
 func (buffer MessageBuffer) ForEach(fn func(v interface{}) error, objMaker func() interface{}) error {
 	tx, err := buffer.db.Begin(true)
 	if err != nil {
@@ -88,4 +78,24 @@ func (buffer MessageBuffer) ForEach(fn func(v interface{}) error, objMaker func(
 		}
 		return err
 	})
+}
+
+// Generates a new key in the bucket
+func (buffer MessageBuffer) nextKey(b *bolt.Bucket) []byte {
+	buf := make([]byte, 3)
+	key, _ := b.NextSequence()
+	utf8.EncodeRune(buf, rune(key))
+	return buf
+}
+
+// Returns serialization of an object
+func serialize(obj interface{}) ([]byte, error) {
+	return json.Marshal(obj)
+}
+
+// Deserialize a []byte into the specified object
+func deserialize(bytes []byte, objMaker func() interface{}) (interface{}, error) {
+	obj := objMaker()
+	err := json.Unmarshal(bytes, obj)
+	return obj, err
 }
