@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/fhalim/ghiccup.svg?branch=master)](https://travis-ci.org/fhalim/ghiccup)
+
 # Introduction
 
 Small utility to measure hiccups on the runtime. Inspired by [JHiccup](http://www.azulsystems.com/jhiccup).
